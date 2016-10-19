@@ -21,17 +21,3 @@ try:
 except:
     print("Sending message failed!")
     sys.exit()
-
-"""
-while True:
-    # Get the list of sockets which are readable with select
-    read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
-
-    for sock in read_sockets:
-        data = "Test message."
-        try:
-            sock.send(data.encode('utf-8'))
-        except:
-            print("Sending message failed!")
-            sys.exit()
-"""
