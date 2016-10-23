@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import socket, sys
-from config import PORT, RECV_BUFFER
+from config import PORT, RECV_BUFFER, SERVER
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto import Random
