@@ -3,11 +3,10 @@ import socket, select, sys
 from config import *
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = socket.gethostname()
 socket_list = [s]
 
 try:
-    s.connect((host, PORT))
+    s.connect((SERVER, PORT))
 except:
     print("Unable to connect!")
     sys.exit()
