@@ -4,6 +4,7 @@ from config import PORT, RECV_BUFFER
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto import Random
+import pickle
 
 connection_list = []
 
@@ -26,19 +27,47 @@ while True:
             clientsocket, addr = serversocket.accept()
             connection_list.append(clientsocket)
             print("Client %s:%s connected!" % addr)
-
+            
+            # generate RSA keys
             random_generator = Random.new().read
             key = RSA.generate(1024, random_generator)
+
+            # extract public key
             public_key = key.publickey()
-            clientsocket.send(public_key)
+
+            # serialize key for sending across network
+            to_send = pickle.dumps(public_key)
+            clientsocket.send(to_send)
             print("Server sent key...")
-            client_key = clientsocket.recv(RECV_BUFFER)
+
+            # receive the key from client
+            client_key_string = clientsocket.recv(RECV_BUFFER)
+            client_key = pickle.loads(client_key_string)
+
             if client_key:
                 print("Server received client key")
-                serversocket.close()
-                sys.exit()
-            else:
-                pass
+
+            cipher_string = clientsocket.recv(RECV_BUFFER)
+            cipher = pickle.loads(cipher_string)
+
+            if cipher:
+
+                print("The received cypher is:", cipher)
+                print("Now verifying if message is authentic...")
+
+                signature = cipher[0]
+                hash = cipher[1]
+                client_message = key.decrypt(cipher[2]).decode('utf-8')
+                authentic = client_key.verify(hash, signature)
+
+                if authentic:
+                    print("The message is authentic!")
+                    print("The message is:", client_message)
+                else:
+                    print("The message is NOT authentic!!")
+                 
+            serversocket.close()
+            sys.exit()
 
         else:
             pass
