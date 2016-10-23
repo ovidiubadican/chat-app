@@ -29,18 +29,8 @@ key = RSA.generate(1024, random_generator)
 # extract the public key and send it to the server
 public_key = key.publickey()
 s.send(public_key)
-s.recv(RECV_BUFFER)
-
-
-# generate a hash from the plaintext message and sign it
-hash = SHA256.new(data).digest()
-signature = key.sign(hash, random_generator)
-
-# encrypt the data to be sent
-enc_data = public_key.encrypt(data,random_generator)
-
-try:
-    s.send(enc_data)
-except:
-    print("Sending message failed!")
+print("Client sent key to server...")
+server_key = s.recv(RECV_BUFFER)
+if server_key:
+    print("Client received server key")
     sys.exit()

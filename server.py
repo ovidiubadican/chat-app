@@ -17,14 +17,25 @@ while True:
     read_sockets, write_sockets, error_sockets = select.select(connection_list, [], [])
 
     for sock in read_sockets:
+
         # New connection
         if sock == serversocket:
             clientsocket, addr = serversocket.accept()
             connection_list.append(clientsocket)
             print("Client %s:%s connected!" % addr)
 
-        # Incomming message from client
+            random_generator = Random.new().read
+            key = RSA.generate(1024, random_generator)
+            public_key = key.publickey()
+            clientsocket.send(public_key)
+            print("Server sent key...")
+            client_key = clientsocket.recv(RECV_BUFFER)
+            if client_key:
+                print("Server received client key")
+                serversocket.close()
+                sys.exit()
+            else:
+                pass
+
         else:
-            data = sock.recv(RECV_BUFFER)
-            print("Message received: ", data.decode('utf-8'))
-            sys.exit()
+            pass
