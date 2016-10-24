@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import socket, select, sys
-from config import *
+from config import PORT, RECV_BUFFER
 
 connection_list = []
 
