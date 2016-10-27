@@ -44,6 +44,7 @@ while True:
             client_key_string = clientsocket.recv(RECV_BUFFER)
             client_key = pickle.loads(client_key_string)
 
+<<<<<<< HEAD
             cipher_string = clientsocket.recv(RECV_BUFFER)
             if cipher_string:
                 cipher = pickle.loads(cipher_string)
@@ -65,6 +66,14 @@ while True:
                 authentic = client_key.verify(hash, signature)
                 if authentic:
                     print(client_message)
+=======
+        else:
+            cipher_string = sock.recv(RECV_BUFFER)
+
+            if len(cipher_string) != 0:
+                print(decrypt(cipher_string, key))
+
+>>>>>>> f353798667afa912d36df8aba3fe0b6cbef95840
             else:
                 print("Client %s has disconnected!" % addr)
                 connection_list.remove(sock)
