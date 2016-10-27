@@ -23,17 +23,19 @@ print("Start sending messages...")
 
 random_generator = Random.new().read
 data = ""
-public_key = generate_rsa()
+public_key, key = generate_rsa()
 s.send(public_key)
 
 # receive key from server
 server_key_string = s.recv(RECV_BUFFER)
 server_key = pickle.loads(server_key_string)
 
-while data != ":q!":
-
-    data = input("Me: > ").encode('utf-8')
-    data_to_send = encrypt(data, server_key)
-    s.send(data_to_send)
-
-s.close()
+while True:
+    text = input("Me: > ")
+    data = text.encode('utf-8')
+    if text == ":q!":
+        s.close()
+        sys.exit()
+    else:
+        data_to_send = encrypt(data, key, server_key, random_generator)
+        s.send(data_to_send)

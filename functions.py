@@ -7,14 +7,13 @@ def generate_rsa():
     # generate pair of RSA keys
     random_generator = Random.new().read
     key = RSA.generate(1024, random_generator)
-    public_key = key.publickey()
-    to_send = pickle.dumps(public_key)
-    return to_send
+    public_key = pickle.dumps(key.publickey())
+    return public_key, key
 
-def encrypt(text, server_key):
+def encrypt(text, key, server_key, random_generator):
     # input plaintext and outputs the serialized cipher
-    hash = SHA256.new(data).digest()
-    enc_data = server_key.encrypt(data, random_generator)
+    hash = SHA256.new(text).digest()
+    enc_data = server_key.encrypt(text, random_generator)
     signature = key.sign(hash, random_generator)
     data_tuple = (signature, hash, enc_data)
     data_to_send = pickle.dumps(data_tuple)
