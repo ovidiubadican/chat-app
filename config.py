@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 SERVER = '52.164.246.22'
+=======
+SERVER = '52.169.76.104'
+>>>>>>> f353798667afa912d36df8aba3fe0b6cbef95840
 PORT = 9999
 RECV_BUFFER = 4096

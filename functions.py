@@ -19,3 +19,13 @@ def encrypt(text, server_key):
     data_tuple = (signature, hash, enc_data)
     data_to_send = pickle.dumps(data_tuple)
     return data_to_send
+
+def decrypt(cipher_string, key):
+    # input serialized cipher and outputs plaintext
+    cipher = pickle.loads(cipher_string)
+    signature = cipher[0]
+    hash = cipher[1]
+    message = key.decrypt(cipher[2]).decode('utf-8')
+    authentic = client_key.verify(hash, signature)
+    if authentic:
+        return message
