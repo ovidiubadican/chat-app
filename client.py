@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 
-from config import PORT, RECV_BUFFER, SERVER
-from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
+import socket, select, sys, pickle
 from Crypto import Random
-import socket, select, sys
-import pickle
+from config import PORT, RECV_BUFFER, SERVER
 from functions import generate_rsa, encrypt
 
 # connect to server
@@ -16,24 +13,44 @@ try:
     s.connect((SERVER, PORT))
 except:
     print("Unable to connect!")
+    s.close()
     sys.exit()
 
 print("Connected to the chat server.")
-print("Start sending messages...")
 
+# generate our keys and send public key to server
 random_generator = Random.new().read
-data = ""
-public_key = generate_rsa()
-s.send(public_key)
+bytes_public_key, key = generate_rsa()
+s.send(bytes_public_key)
 
-# receive key from server
-server_key_string = s.recv(RECV_BUFFER)
-server_key = pickle.loads(server_key_string)
+# receive acknowledgement from server that has received our public key
+server_ack = s.recv(RECV_BUFFER)
+server_ack = server_ack.decode('utf-8')
+if server_ack == 'ack':
+    # receive key from server
+    bytes_server_key = s.recv(RECV_BUFFER)
+    server_key = pickle.loads(bytes_server_key)
 
-while data != ":q!":
+    ack = 'ack'
+    if server_key:
+        s.send(ack.encode('utf-8'))
+        print("Secure channel set up completed\nStart sending messages...")
+    else:
+        print("Secure channel could not be setup\nNow exiting...")
+        s.close()
+        sys.exit()
 
-    data = input("Me: > ").encode('utf-8')
-    data_to_send = encrypt(data, server_key)
-    s.send(data_to_send)
-
-s.close()
+while True:
+    text = input("Me: > ")
+    data = text.encode('utf-8')
+    if text == ":q!":
+        s.close()
+        sys.exit()
+    else:
+        data_to_send = encrypt(data, key, server_key, random_generator)
+        try:
+            s.send(data_to_send)
+        except:
+            print("Server is offline...")
+            s.close()
+            sys.exit()
