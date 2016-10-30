@@ -1,3 +1,3 @@
-SERVER = '52.169.76.104'
+SERVER = 'chat-app.northeurope.cloudapp.azure.com'
 PORT = 9999
-RECV_BUFFER = 4096
+RECV_BUFFER = 2048

@@ -28,25 +28,30 @@ while True:
             clientsocket, addr = serversocket.accept()
             connection_list.append(clientsocket)
             print("Client %s:%s connected!" % addr)
-
-            # generate RSA keys
-            random_generator = Random.new().read
-            key = RSA.generate(1024, random_generator)
-
-            # extract public key
-            public_key = key.publickey()
-
-            # serialize key for sending across network
-            to_send = pickle.dumps(public_key)
-            clientsocket.send(to_send)
-
+            
             # receive the key from client
             client_key_string = clientsocket.recv(RECV_BUFFER)
             if client_key_string:
                 client_key = pickle.loads(client_key_string)
-            else:
-                pass
+                ack = 'ack'.encode('utf-8')
+                clientsocket.send(ack)            
 
+                # generate RSA keys
+                random_generator = Random.new().read
+                key = RSA.generate(1024, random_generator)
+
+                # extract public key
+                public_key = key.publickey()
+
+                # serialize key for sending across network
+                to_send = pickle.dumps(public_key)
+                clientsocket.send(to_send)
+
+                client_ack = clientsocket.recv(RECV_BUFFER)
+                if client_ack.decode('utf-8') == 'ack':
+                    print("Secure channel set up with %s:%s" % addr)
+
+             
         else:
             # receive message from client
             cipher_string = sock.recv(RECV_BUFFER)
