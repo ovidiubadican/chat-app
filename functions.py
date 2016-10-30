@@ -7,8 +7,8 @@ def generate_rsa():
     # generate pair of RSA keys
     random_generator = Random.new().read
     key = RSA.generate(1024, random_generator)
-    public_key = pickle.dumps(key.publickey())
-    return public_key, key
+    bytes_public_key = pickle.dumps(key.publickey())
+    return bytes_public_key, key
 
 def encrypt(text, key, server_key, random_generator):
     # input plaintext and outputs the serialized cipher
@@ -28,3 +28,6 @@ def decrypt(cipher_string, key):
     authentic = client_key.verify(hash, signature)
     if authentic:
         return message
+
+#def broadcast(message):
+    # broadcast the message to all the clients
