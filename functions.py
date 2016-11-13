@@ -29,5 +29,11 @@ def decrypt(cipher_string, key):
     if authentic:
         return message
 
-#def broadcast(message):
+def broadcast(sending_client, clients, message):
     # broadcast the message to all the clients
+    for client in clients:
+        if client != sending_client:
+         
+            cipher = client.encrypt(message)
+            client.clientsocket.send(cipher)
+                

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import socket, select, sys
 from config import PORT, RECV_BUFFER
+from classes import Client
 
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
@@ -8,7 +9,8 @@ from Crypto import Random
 import pickle
 
 connection_list = []
-
+clients = {}
+i = 0 # number of connected clients
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
 serversocket.bind((host, PORT))
@@ -25,54 +27,26 @@ while True:
 
         # New connection
         if sock == serversocket:
-            clientsocket, addr = serversocket.accept()
-            connection_list.append(clientsocket)
-            print("Client %s:%s connected!" % addr)
-            
-            # receive the key from client
-            client_key_string = clientsocket.recv(RECV_BUFFER)
-            if client_key_string:
-                client_key = pickle.loads(client_key_string)
-                ack = 'ack'.encode('utf-8')
-                clientsocket.send(ack)            
+            temp_obj = Client(serversocket, connection_list)
+            clients[temp_obj.clientsocket] = temp_obj
+            i = i + 1
+            print("There are %d connected clients" % i)
+            temp_obj = None
 
-                # generate RSA keys
-                random_generator = Random.new().read
-                key = RSA.generate(1024, random_generator)
-
-                # extract public key
-                public_key = key.publickey()
-
-                # serialize key for sending across network
-                to_send = pickle.dumps(public_key)
-                clientsocket.send(to_send)
-
-                client_ack = clientsocket.recv(RECV_BUFFER)
-                if client_ack.decode('utf-8') == 'ack':
-                    print("Secure channel set up with %s:%s" % addr)
-
-             
         else:
             # receive message from client
             cipher_string = sock.recv(RECV_BUFFER)
 
             if len(cipher_string) != 0:
                
-                cipher = pickle.loads(cipher_string)
-                signature = cipher[0]
-                hash = cipher[1]
-                client_message = key.decrypt(cipher[2]).decode('utf-8')
-                authentic = client_key.verify(hash, signature)
-                if authentic:
-                    print(client_message)
-                else:
-                    print("Could not verify message authenticity!")
+                message = clients[sock].decrypt(cipher_string)
+                print("%s:%s said:" % clients[sock].addr, end=" ")
+                print(message)
 
             else:
-                
-                print("Client %s:%s has disconnected!" % addr)
-                connection_list.remove(sock)
-                sock.close()
+                clients[sock].disconnect(connection_list)
+                i = i - 1
+                print("There are %d connected clients" % i)
 
 serversocket.close()
 sys.exit()
