@@ -46,6 +46,7 @@ while True:
             else:
                 clients[sock].disconnect(connection_list)
                 i = i - 1
+                del clients[sock]
                 print("There are %d connected clients" % i)
 
 serversocket.close()
