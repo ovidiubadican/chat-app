@@ -1,13 +1,8 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
-"""
-PyQt5 tutorial
-"""
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, QMessageBox
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import QWidget, QMessageBox, QGridLayout, QTextEdit, \
+                            QDesktopWidget
+from PyQt5.QtGui import QIcon, QFont, QTextCursor
 
 class Window(QWidget):
 
@@ -16,22 +11,35 @@ class Window(QWidget):
         self.initUI()
 
     def initUI(self):
-        QToolTip.setFont(QFont('SansSerif', 10))
 
-        btn = QPushButton('Button', self)
-        btn.setToolTip('This is a button')
-        btn.resize(btn.sizeHint())
-        btn.move(50,50)
+        inputText = QTextEdit()
 
-        qbtn = QPushButton('Quit', self)
-        qbtn.clicked.connect(QCoreApplication.instance().quit)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(50, 80)
+        logText = QTextEdit()
+        logText.setReadOnly(True)
+        font = logText.font()
+        font.setFamily("Courier")
+        font.setPointSize(10)
+        logText.moveCursor(QTextCursor.End)
+        sb = logText.verticalScrollBar()
+        sb.setValue(sb.maximum())
 
-        self.setGeometry(1500, 120, 350, 800)
+        grid = QGridLayout()
+        grid.addWidget(logText, 0, 0, 2, 1)
+        grid.addWidget(inputText, 2, 0, 1, 1)
+
+        self.setLayout(grid)
+
+        self.resize(700, 400)
+        self.center()
         self.setWindowTitle('ChatApp')
         self.setWindowIcon(QIcon('icon.jpg'))
         self.show()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message',
@@ -41,8 +49,3 @@ class Window(QWidget):
             event.accept()
         else:
             event.ignore()
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    main_window = Window()
-    sys.exit(app.exec_())

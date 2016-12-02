@@ -5,6 +5,14 @@ from Crypto import Random
 from config import PORT, RECV_BUFFER, SERVER
 from functions import generate_rsa, encrypt
 
+# GUI imports ----------
+from PyQt5.QtWidgets import QApplication
+from gui import Window
+# ----------------------
+
+app = QApplication(sys.argv)
+main_window = Window()
+
 # connect to server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_list = [s]
@@ -12,7 +20,7 @@ socket_list = [s]
 try:
     s.connect((SERVER, PORT))
 except:
-    print("Unable to connect!")
+    Window.logText.insertPlainText("Unable to connect!")
     s.close()
     sys.exit()
 
@@ -54,3 +62,5 @@ while True:
             print("Server is offline...")
             s.close()
             sys.exit()
+
+sys.exit(app.exec_())
